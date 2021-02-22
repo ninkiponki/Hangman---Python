@@ -1,0 +1,147 @@
+# ----------------------------------------------------------------------------------------------------------------------
+#
+#   Author: Thomas Copo
+#   Date: 20/2/2021 - 22/2/2021
+#   Purpose: To replicate the fun game known as HANGMAN!
+#
+# ----------------------------------------------------------------------------------------------------------------------
+
+
+# Imports
+import random
+import  string
+import sys
+
+# Global variables
+name = ""  # Stores user name
+enteredName = False  # Has the user entered their name already
+playerWon = False  #Did the player win?
+
+# Main menu of the game
+def menu():
+    print("Well, well, well,")
+    print("A new foe has approached me.")
+    print("And they think that they can best me!")
+    print("Ha, I'll show you who is the hangman king!")
+    print("For I am GENE the hangman WORLD CHAMPION!")
+    input("Press ENTER to start the battle if you dare")
+    print("\n" * 3)
+
+# Function for reading from a list of words and choosing one at random
+def getWord():
+    file = open("wordsList.py")
+    words = file.readlines()
+    word = random.choice(words)
+    word = str(word).strip("")
+    word = str(word).strip("''")
+    word = str(word).strip("\n")
+    word = str(word).strip("\r")
+    word = word.upper()
+    return word
+
+# Main game
+def play(word):
+    alphabet = string.ascii_uppercase
+    lettersGuessed = []  # Letters that have been guessed by the user
+    tries = 6  # Amount of attempts before user loses the game
+    guessed = False  # Has the user guessed the word yet
+
+    # Genes monolog
+    print("Wow you decided to actually play!")
+    print("Well this word is going to the nail in your coffin")
+    print("This WORD will be where you kick the bucket!")
+    print("THIS WORD WILL BE YOUR DEMISE!")
+    print("HAHAHAHAHAHAHAHAHAHAHAHAHAHHAHAHAHAHHAHAHAHAHA")
+    input()
+    print("\n" * 3)
+
+    # Let the user know the amount of letters in the word
+    print("Your word contains " + str(len(word)) + " letters.")
+    print("_" * len(word))
+    print("\n")
+
+    # Begin loop
+    while guessed == False and tries > 0:
+        print("You have " + str(tries) + " guesses, you will need them")
+        print("Now enter one Letter or the FULL WORD you think it is.")
+        guess = input("Letter/Word:   ").upper()
+        print("\n")
+
+        # 1 - user inputs a letter
+        # Processes the users guessed letter
+        if len(guess) == 1:
+            if guess not in alphabet:
+                print("INVALID INPUT! \nWOW your really bad at this \nMaybe try entering a letter in the alphabet!")
+                input()
+                print("\n" * 5)
+            elif guess in lettersGuessed:
+                print("INVALID INPUT! \nYou have the memory of a gold fish! Maybe try entering a new letter")
+                input()
+                print("\n" * 5)
+            elif guess not in word:
+                print("HA HA HA, That letter isn't inside of my chosen word")
+                input()
+                print("\n" * 5)
+                lettersGuessed.append(guess)
+                tries -= 1
+            elif guess in word:
+                print("Grrrr, you got luck on your side huh, whelp I'll let you have that small victory")
+                input()
+                print("\n" * 5)
+                lettersGuessed.append(guess)
+            else:
+                print("YOU HAVE TO BE REALLY STUPID TO GET THIS MESSAGE")
+                print("\n" * 5)
+
+
+        # 2 - user inputs a full word
+        # Processes the users guessed word
+        elif len(guess) == len(word):
+            if guess == word:
+                print("How could you, my entire life was devoted to this game. \nI was beaten by a mere simpleton")
+                print("You wont get so lucky next time!")
+                input()
+                print("\n" * 5)
+                guessed = True
+            else:
+                print("Ha you guessed incorrectly. You are such an idiot.")
+                print("Maybe next time try using some of those brain cell")
+                input()
+                print("\n" * 5)
+                tries -= 1
+
+        # 3 -user inputs letters where the total amount of letters == total number of letters in the word
+        else:
+            print("CANT YOU COUNT! THE WORD YOU ENTERED WAS TO LONG")
+            input()
+            print("\n" * 5)
+
+
+        # Prints out what the status of the users word is
+        status = ""
+        if guessed == False:
+            for char in word:
+                if char in lettersGuessed:
+                    status += char
+                else:
+                    status += "_"
+            print(status)
+
+        if status == word:
+            print("You beat me...")
+            print("But no your just a simpleton.")
+            print("You must of cheated ot just got lucky")
+            print("I ask you to try this again\nto prove that you didn't cheat or you weren't lucky")
+            guessed = True
+        elif tries == 0:
+            print("Ha your so dumb. I've won and you have lost. "
+                  "\nCome back next time when you surpass being a nitwit!")
+
+    # Combines all the function together to form the game
+
+# Function that controls all the other functions
+def main():
+    menu()
+    play(getWord())
+
+main()
