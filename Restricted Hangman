@@ -1,0 +1,297 @@
+# ==============================================================================================================
+#   Author: Thomas Copo
+#   Date:   14/4/2021
+#   Purpose: To Recreate the fun word game Hangman in within the restriciton set by my software teacher
+# ==============================================================================================================
+
+import random
+
+eWords = ['blanket', 'heater', 'inspired', 'active', 'magical', 'strong', 'playful', 'discover', 'cat', 'mouse',
+          'iron', 'diamonds', 'gold', 'car', 'plane', 'bird', 'clear', 'ocean', 'fish', 'chicken', 'magazine',
+          'wither', 'alphabet', 'kindergarten', 'school']
+mWords = ['anxious', 'malicious', 'harangue', 'vigor', 'gym', 'dying', 'programming', 'python', 'kitten', 'mitten',
+          'eulogies', 'philosopher', 'embalm', 'southern', 'hemisphere', 'understood', 'jocund', 'quiver', 'auction',
+          'syntax', 'pragmatic', 'laconic', 'extrapolate', 'triangulate', 'adjacent']
+hWords = ['galaxy', 'mnemonic', 'numbskull', 'onyx', 'vodka', 'uptown', 'grogginess', 'axe', 'banjo', 'bongo',
+          'toha', 'gazebo', 'jazziest', 'dirndl', 'stretch', 'larynx', 'flyby', 'flapjack', 'exodus', 'espionage',
+          'razzmatazz', 'zigzagging', 'pneumonia', 'phlegm', 'jawbreaker']
+
+word = 'secret'  # Secret word that the user has to guess
+clear = lambda count : print('\n' * count)
+allowedErrors = 10  # How many errors is the user allowed
+hangmanState = 0  # Current state of hangman image
+guesses = []  # Letters the user has already guessed
+hangman = \
+   ("""
+---------------------
+---------------------
+||
+||
+||
+||
+||
+||
+||
+||
+||____________________""",  # State 0
+    """
+---------------------
+---------------------
+||/
+||
+||
+||
+||
+||
+||
+||
+||____________________""",  # State 1
+    """
+---------------------
+---------------------
+||/ |
+||
+||
+||
+||
+||
+||
+||
+||____________________""",  # State 2
+    """
+---------------------
+---------------------
+||/ |
+||  |
+||
+||
+||
+||
+||
+||
+||____________________""",  # State 3
+    """
+---------------------
+---------------------
+||/ |
+||  |
+||  O
+||
+||
+||
+||
+||
+||____________________""",  # State 4
+    """
+---------------------
+---------------------
+||/ |
+||  |
+||  O
+|| /
+||
+||
+||
+||
+||____________________""",  # State 5
+    """
+---------------------
+---------------------
+||/ |
+||  |
+||  O
+|| /|
+||
+||
+||
+||
+||____________________""",  # State 6
+    """
+---------------------
+---------------------
+||/ |
+||  |
+||  O
+|| /|\\
+||  |
+||
+||
+||
+||____________________""",  # State 7
+    """
+---------------------
+---------------------
+||/ |
+||  |
+||  O
+|| /|\\
+||  |
+|| /
+||
+||
+||____________________""",  # State 8
+    """
+---------------------
+---------------------
+||/ |
+||  |
+||  O
+|| /|\
+||  |
+|| / \\
+||
+||
+||____________________""")  # State 9
+
+
+def lower(text) :
+   length = len(text)
+   newText = ''
+   # Loop through the text
+   for i in range(length) :
+      value = ord(text[i])
+      if 65 <= value <= 90 :
+         newChar = chr(value + 32)
+         newText += newChar
+      else :
+         newText += text[i]
+   return newText
+
+playing = True
+
+while playing :
+   print('Welcome to hangman! The greatest word game!')
+   print('What level of difficulty would you like?')
+   print('1) Easy,        2)Medium,        3)Hard')
+   print('Enter the corresponding number or the difficulties name,\ninorder select that difficulty')
+   a = input('Difficulty: ')
+   a = lower(a)
+   if a == '1' or a == 'easy' :
+      word = eWords[random.randint(0, len(eWords) - 1)]
+   elif a == '2' or a == 'medium' :
+      word = mWords[random.randint(0, len(mWords) - 1)]
+   elif a == '3' or a == 'hard' :
+      word = hWords[random.randint(0, len(hWords) - 1)]
+   else :
+      print('Invalid Input!\n Please try again')
+
+   wordState = ['_'] * len(word)  # Current state of the word seen by the user
+   wordLen = len(word)  # Stores the length of the word
+   win = False  # Did the user win?
+   lose = False  # Did the user lose?
+   done = False  # Has the game finished?
+
+   # Main game loop
+   while not done :
+
+      valid = False  # Sets valid to false inorder to start error checking loop
+      # Error checking loop for user guessed character
+      while not valid :
+         print('\n')
+         print('Amount of errors remaining: ' + str(allowedErrors))  # Prints guesses remaining
+
+         # Print characters guessed
+         guesses.sort()  # Sorts the list alphabetically
+         print('Guessed Characters: ', end = ' ')  # Prints all of the guessed character out
+         for i in range(len(guesses)) :
+            print(guesses[i], end = ' ')
+
+         # Print current state of word
+         print('\nWord: ', end = '')
+         for i in range(len(wordState)) :
+            print(wordState[i], end = ' ')
+         print('\n==============================================================================================')
+
+         charGuess = input('Guess a ' + '\033[1m' + 'SINGLE' + '\033[0m' + ' char: ')  # Get the user input
+         charGuess = lower(charGuess)
+         coins = 0  # Set coins to 0
+
+         # If the input length is less than one THEN
+         if len(charGuess) == 1 :
+            # Loop through all the character in guesses THEN
+            for i in range(len(guesses)) :
+               # If the character guessed is not inside of guesses THEN
+               if charGuess != guesses[i] :
+                  coins += 1  # Add a coin
+         else :
+            print('\033[1m' + 'Invalid Input!' + '\033[0m' + '\nMore or less than a singe character was entered')
+
+         # If the coins is equal to the length of guesses THEN
+         if coins == len(guesses) :
+            valid = True  # Users input was valid
+         else :
+            print('\033[1m' + 'Invalid Input!' + '\033[0m' + '\nThis character has already been entered')
+      # ===================================================================================================================
+      # ===================================================================================================================
+
+      coins = 0  # Set coins to 0
+      for i in range(len(wordState)) :
+         # If the guessed character is within the word THEN
+         if charGuess == word[i] :
+            wordState[i] = charGuess  # Replace that '_' with the  guessed character
+            coins += 1
+
+      print('\n')
+      if coins != 0 :
+         print('\033[1m' + charGuess + '\033[0m' + " is within the secret word!\n WELL DONE!")
+         print(hangman[hangmanState])
+      else :
+         print('\033[1m' + charGuess + '\033[0m' + " isn't inside of the word.\nBetter luck next time :D")
+         allowedErrors -= 1
+         hangmanState += 1
+         if hangmanState == 10 :
+            hangmanState = 9
+         print(hangman[hangmanState])
+      guesses += charGuess  # Adds the guessed character to the guesses list
+
+      input('press ' + '\033[1m' + 'ENTER' + '\033[0m' + ' to continue')
+      clear(100)
+      # ===================================================================================================================
+      # ===================================================================================================================
+
+      # Has the user won
+      coins = 0
+      for i in range(wordLen) :
+         if '_' != wordState[i] :
+            coins += 1
+      if coins == wordLen :
+         done = True
+         win = True
+
+      if allowedErrors <= 0 :
+         done = True
+         lose = True
+      # ===================================================================================================================
+      # ===================================================================================================================
+
+   # Hangman ending
+   if win :
+      print('Well done you won! Your word was ' + '\033[1m' + str(word) + '\033[0m')
+      print('Stats: ')
+      print('Guesses: ' + str(len(guesses)))
+      print('Errors left: ' + str(allowedErrors))
+   elif lose :
+      print('You lose, better luck next time. Your word was ' + '\033[1m' + str(word) + '\033[0m')
+      print('Stats: ')
+      print('Guesses: ' + str(len(guesses)))
+      print('Errors left: ' + str(allowedErrors))
+   else :
+      # If this error happens need to look into the code
+      print('This error is an internal error with the code, Sorry if it ruined your game.')
+
+   valid = False
+   print('\n')
+   while not valid :
+      print('Do you wish to play again')
+      print('type Y(yes) or N(no)')
+      a = input('Continue: ')
+      a = lower(a)
+      if a == 'y' or a == 'yes' :
+         print('Yay lets continue then')
+         valid = True
+      elif a == 'n' or a == 'no' :
+         print('Aww ok hope you had fun playing')
+         playing = False
+         valid = True
+      else :
+         print('Invalid Input!')
